@@ -9,7 +9,7 @@ let billHistory = JSON.parse(localStorage.getItem("history")) || [];
 
 /* IMAGE FROM SAME FOLDER */
 function getImage(name) {
-  return `${name.toLowerCase().replace(/\s/g, "")}.jpg`;
+  return `images/${name.toLowerCase().replace(/\s/g, "")}.jpg`;
 }
 
 /* TAB SWITCH */
