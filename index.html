@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restaurant Billing System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- LOGIN -->
+<section id="loginSection" class="login-wrapper">
+  <div class="login-card">
+    <h2 class="center">🍽 Restaurant Billing</h2>
+
+    <div class="login-tabs">
+      <div id="userTab" class="tab active" onclick="switchTab('user')">User Login</div>
+      <div id="adminTab" class="tab" onclick="switchTab('admin')">Admin Login</div>
+    </div>
+
+    <input id="username" placeholder="Username">
+    <input id="password" type="password" placeholder="Password">
+
+    <div class="center-btn">
+      <button onclick="login()">Login</button>
+    </div>
+
+    <p id="loginError" class="error"></p>
+  </div>
+</section>
+
+<!-- ADMIN PANEL -->
+<section id="adminPanel" class="panel hidden">
+
+  <header class="center-header">
+    <h2>Admin Dashboard</h2>
+    <button onclick="logout()">Logout</button>
+  </header>
+
+  <div class="add-item">
+    <h3 class="center">➕ Add New Item</h3>
+    <input id="newName" placeholder="Item Name">
+    <input id="newPrice" type="number" placeholder="Price">
+    <input id="newStock" type="number" placeholder="Initial Stock">
+
+    <div class="center-btn">
+      <button onclick="addItem()">Add Item</button>
+    </div>
+  </div>
+
+  <div id="adminItems" class="grid center-grid"></div>
+</section>
+
+<!-- USER PANEL -->
+<section id="userPanel" class="panel hidden">
+
+  <header class="user-header">
+    <h2>Order Food</h2>
+    <button onclick="logout()">Logout</button>
+  </header>
+
+  <div id="userItems" class="grid center-grid"></div>
+
+  <!-- SPACE + CENTER -->
+  <div class="center-btn user-action">
+    <button onclick="generateBill()">Generate Bill</button>
+  </div>
+
+  <div id="bill"></div>
+
+  <h3 class="center">📜 Bill History</h3>
+  <div id="history"></div>
+
+</section>
+
+<script src="script.js"></script>
+</body>
+</html>
