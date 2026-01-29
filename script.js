@@ -9,7 +9,7 @@ let billHistory = JSON.parse(localStorage.getItem("history")) || [];
 
 /* IMAGE AUTO */
 function getImage(name) {
-  return `images/${name.toLowerCase().replace(/\s/g, "")}.jpg`;
+  return `${name.toLowerCase().replace(/\s/g, "")}.jpg`;
 }
 
 /* TAB */
@@ -143,3 +143,4 @@ function save() {
   renderUser();
   renderHistory();
 }
+
