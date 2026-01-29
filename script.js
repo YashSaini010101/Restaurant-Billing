@@ -7,12 +7,12 @@ let items = JSON.parse(localStorage.getItem("items")) || [
 
 let billHistory = JSON.parse(localStorage.getItem("history")) || [];
 
-/* IMAGE AUTO */
+/* IMAGE FROM SAME FOLDER */
 function getImage(name) {
   return `${name.toLowerCase().replace(/\s/g, "")}.jpg`;
 }
 
-/* TAB */
+/* TAB SWITCH */
 function switchTab(tab) {
   role = tab;
   userTab.classList.remove("active");
@@ -20,7 +20,7 @@ function switchTab(tab) {
   document.getElementById(tab + "Tab").classList.add("active");
 }
 
-/* ENTER LOGIN */
+/* ENTER KEY LOGIN */
 document.addEventListener("keydown", e => {
   if (e.key === "Enter" && !loginSection.classList.contains("hidden")) login();
 });
@@ -47,45 +47,95 @@ function logout() {
   location.reload();
 }
 
-/* ADMIN */
+/* ================= ADMIN ================= */
+
 function renderAdmin() {
   adminItems.innerHTML = "";
+
   items.forEach((i, idx) => {
     adminItems.innerHTML += `
       <div class="card">
-        <img src="${getImage(i.name)}" onerror="this.src='images/food.png'">
+        <div style="display:flex; justify-content:flex-end;">
+          <button onclick="deleteItem(${idx})" 
+            style="background:#e74c3c; padding:4px 8px; font-size:12px;">
+            ❌
+          </button>
+        </div>
+
+        <img src="${getImage(i.name)}" onerror="this.src='food.png'">
         <h4>${i.name}</h4>
         <p>₹${i.price}</p>
         <p>Stock: ${i.stock}</p>
-        <button onclick="updateStock(${idx},1)">+</button>
-        <button onclick="updateStock(${idx},-1)">-</button>
+
+        <div class="stock-controls">
+          <button onclick="updateStock(${idx},1)">+</button>
+          <button onclick="updateStock(${idx},-1)">-</button>
+        </div>
       </div>`;
   });
 }
 
-function updateStock(i, v) {
-  if (items[i].stock + v >= 0) {
-    items[i].stock += v;
+/* UPDATE STOCK */
+function updateStock(index, value) {
+  if (items[index].stock + value >= 0) {
+    items[index].stock += value;
     save();
   }
 }
 
+/* DELETE ITEM */
+function deleteItem(index) {
+  if (confirm("Are you sure you want to delete this item?")) {
+    items.splice(index, 1);
+    save();
+  }
+}
+
+/* ADD ITEM WITH VALIDATION */
 function addItem() {
-  items.push({
-    name: newName.value,
-    price: Number(newPrice.value),
-    stock: Number(newStock.value)
-  });
+  const name = newName.value.trim();
+  const price = Number(newPrice.value);
+  const stock = Number(newStock.value);
+
+  if (!name) {
+    alert("Item name is required");
+    return;
+  }
+
+  if (!price || price <= 0) {
+    alert("Valid price is required");
+    return;
+  }
+
+  if (stock < 0 || newStock.value === "") {
+    alert("Valid initial stock is required");
+    return;
+  }
+
+  // Prevent duplicate item names
+  if (items.some(i => i.name.toLowerCase() === name.toLowerCase())) {
+    alert("Item already exists");
+    return;
+  }
+
+  items.push({ name, price, stock });
+
+  newName.value = "";
+  newPrice.value = "";
+  newStock.value = "";
+
   save();
 }
 
-/* USER */
+/* ================= USER ================= */
+
 function renderUser() {
   userItems.innerHTML = "";
+
   items.forEach((i, idx) => {
     userItems.innerHTML += `
       <div class="card">
-        <img src="${getImage(i.name)}" onerror="this.src='images/food.png'">
+        <img src="${getImage(i.name)}" onerror="this.src='food.png'">
         <h4>${i.name}</h4>
         <p>₹${i.price}</p>
         <p>Stock: ${i.stock}</p>
@@ -94,32 +144,52 @@ function renderUser() {
   });
 }
 
+/* GENERATE BILL */
 function generateBill() {
   let total = 0;
   let hasItem = false;
-  let html = `<div class="bill-card"><h3 class="center">🧾 Bill</h3>`;
+
+  let html = `<div class="bill-card">
+    <h3 class="center">🧾 Bill</h3>`;
 
   items.forEach((i, idx) => {
     let q = Number(document.getElementById("q" + idx).value);
+
     if (q > 0) {
-      if (q > i.stock) return alert("Out of stock");
+      if (q > i.stock) {
+        alert(`Not enough stock for ${i.name}`);
+        return;
+      }
+
       hasItem = true;
       i.stock -= q;
       total += q * i.price;
-      html += `<div class="bill-item"><span>${i.name} x${q}</span><span>₹${q*i.price}</span></div>`;
+
+      html += `
+        <div class="bill-item">
+          <span>${i.name} x${q}</span>
+          <span>₹${q * i.price}</span>
+        </div>`;
     }
   });
 
-  if (!hasItem) return alert("Select at least one item");
+  if (!hasItem) {
+    alert("Please select at least one item");
+    return;
+  }
 
   html += `<div class="bill-total">TOTAL: ₹${total}</div></div>`;
   bill.innerHTML = html;
 
-  billHistory.push({ date: new Date().toLocaleString(), total });
+  billHistory.push({
+    date: new Date().toLocaleString(),
+    total
+  });
+
   save();
 }
 
-/* HISTORY */
+/* BILL HISTORY (LATEST FIRST) */
 function renderHistory() {
   let html = `<div class="history-grid">`;
 
@@ -139,9 +209,8 @@ function renderHistory() {
 function save() {
   localStorage.setItem("items", JSON.stringify(items));
   localStorage.setItem("history", JSON.stringify(billHistory));
+
   renderAdmin();
   renderUser();
   renderHistory();
 }
-
-
